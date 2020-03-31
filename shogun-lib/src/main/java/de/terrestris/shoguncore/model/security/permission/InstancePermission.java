@@ -13,8 +13,8 @@ import javax.persistence.OneToOne;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public abstract class InstancePermission extends BaseEntity {
 
     @ManyToOne(optional = false)
