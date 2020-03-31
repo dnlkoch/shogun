@@ -29,8 +29,13 @@
       <url>https://nexus.terrestris.de/repository/public/</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>nexus.terrestris.de</id>
+      <url>https://nexus.terrestris.de/repository/public/</url>
+    </pluginRepository>
+  </pluginRepositories>
 
-  <!-- TODO pluginRepository -->
   <distributionManagement>
     <repository>
       <id>terrestris-nexus</id>
