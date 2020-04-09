@@ -4,10 +4,15 @@ import de.terrestris.shogun.lib.model.Group;
 import de.terrestris.shogun.lib.model.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.admin.client.resource.*;
+import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.IDToken;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.WebApplicationException;
@@ -100,4 +105,30 @@ public class KeycloakUtil {
         return kcUser.groups().contains(kcGroup);
     }
 
+    /**
+     * Return keycloak user id from {@link Authentication} object
+     *   - from {@link IDToken}
+     *   - from {@link org.keycloak.Token}
+     * @param authentication The Spring security authentication
+     * @return The keycloak user id token
+     */
+    public String getKeycloakUserIdFromAuthentication(Authentication authentication) {
+        if (authentication.getPrincipal() instanceof KeycloakPrincipal) {
+            KeycloakPrincipal keycloakPrincipal = (KeycloakPrincipal) authentication.getPrincipal();
+            KeycloakSecurityContext keycloakSecurityContext = keycloakPrincipal.getKeycloakSecurityContext();
+            IDToken idToken = keycloakSecurityContext.getIdToken();
+            String keycloakUserId;
+
+            if (idToken != null) {
+                keycloakUserId = idToken.getSubject();
+            } else {
+                AccessToken accessToken = keycloakSecurityContext.getToken();
+                keycloakUserId = accessToken.getSubject();
+            }
+
+            return keycloakUserId;
+        } else {
+            return null;
+        }
+    }
 }
