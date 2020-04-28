@@ -14,13 +14,13 @@ server:
 
 importer:
   geoserver:
-    baseUrl: http://localhost:8080/geoserver
+    baseUrl: http://192.168.178.63:8080/geoserver
     username: admin
     password: geoserver
   shogun:
-    baseUrl: http://localhost:8080/shogun-boot
+    baseUrl: http://192.168.178.63:8082
     username: admin
-    password: shogun
+    password: hermosa
   raster:
     performGdalAddo: true
     gdalAddoLevels:
@@ -44,7 +44,7 @@ importer:
 
 keycloak:
   auth-server-url: http://localhost:8000/auth
-  realm: SpringBootKeycloak
+  realm: HERMOSA
   resource: shogun-app
   public-client: true
   principal-attribute: preferred_username
