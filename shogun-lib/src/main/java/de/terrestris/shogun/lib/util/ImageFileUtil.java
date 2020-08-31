@@ -1,18 +1,19 @@
 package de.terrestris.shogun.lib.util;
 
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Log4j2
 public class ImageFileUtil {
@@ -37,7 +38,8 @@ public class ImageFileUtil {
     }
 
     public static BufferedImage toBufferedImage(Image img) {
-        BufferedImage bImg = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bImg =
+            new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D bGr = bImg.createGraphics();
         bGr.drawImage(img, 0, 0, null);
@@ -46,14 +48,17 @@ public class ImageFileUtil {
         return bImg;
     }
 
-    public static byte[] getScaledImage(MultipartFile uploadFile, Dimension imageDimensions, int thumbnailSize) throws IOException {
+    public static byte[] getScaledImage(MultipartFile uploadFile, Dimension imageDimensions,
+                                        int thumbnailSize) throws IOException {
         File imgFile = FileUtil.convertToFile(uploadFile);
 
         Image scaledImgFile;
         if (imageDimensions.height > imageDimensions.width) {
-            scaledImgFile = ImageIO.read(imgFile).getScaledInstance(-1, thumbnailSize, BufferedImage.SCALE_SMOOTH);
+            scaledImgFile = ImageIO.read(imgFile)
+                .getScaledInstance(-1, thumbnailSize, BufferedImage.SCALE_SMOOTH);
         } else {
-            scaledImgFile = ImageIO.read(imgFile).getScaledInstance(thumbnailSize, -1, BufferedImage.SCALE_SMOOTH);
+            scaledImgFile = ImageIO.read(imgFile)
+                .getScaledInstance(thumbnailSize, -1, BufferedImage.SCALE_SMOOTH);
         }
 
         BufferedImage img = ImageFileUtil.toBufferedImage(scaledImgFile);

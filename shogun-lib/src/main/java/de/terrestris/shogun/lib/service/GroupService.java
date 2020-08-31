@@ -5,6 +5,9 @@ import de.terrestris.shogun.lib.model.User;
 import de.terrestris.shogun.lib.repository.GroupRepository;
 import de.terrestris.shogun.lib.repository.UserRepository;
 import de.terrestris.shogun.lib.util.KeycloakUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.keycloak.admin.client.resource.GroupResource;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -14,10 +17,6 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class GroupService extends BaseService<GroupRepository, Group> {
@@ -116,7 +115,7 @@ public class GroupService extends BaseService<GroupRepository, Group> {
         } catch (Exception e) {
             LOG.warn("Could not get the GroupRepresentation for group with SHOGun ID {} and " +
                     "Keycloak ID {}. This may happen if the group is not available in Keycloak.",
-                    group.getId(), group.getKeycloakId());
+                group.getId(), group.getKeycloakId());
             LOG.trace("Full stack trace: ", e);
         }
 

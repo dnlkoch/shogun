@@ -1,16 +1,15 @@
 package de.terrestris.shogun.interceptor.util;
 
+import static org.apache.logging.log4j.LogManager.getLogger;
+
 import de.terrestris.shogun.interceptor.exception.InterceptorException;
 import de.terrestris.shogun.interceptor.servlet.MutableHttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.springframework.util.StreamUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.Charset;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
@@ -22,11 +21,19 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.*;
-import java.io.*;
-import java.nio.charset.Charset;
-
-import static org.apache.logging.log4j.LogManager.getLogger;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Logger;
+import org.springframework.util.StreamUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class OgcXmlUtil {
 
@@ -120,7 +127,8 @@ public class OgcXmlUtil {
      * @return
      * @throws InterceptorException
      */
-    public static NodeList getPathInDocumentAsNodeList(Document document, String path) throws InterceptorException {
+    public static NodeList getPathInDocumentAsNodeList(Document document, String path)
+        throws InterceptorException {
         if (document == null) {
             throw new InterceptorException("Document may not be null");
         }
@@ -167,10 +175,10 @@ public class OgcXmlUtil {
      * Method overrides the {@link InputStream} of an request with the given doc
      *
      * @param doc The document to copy from
-     *
      * @return MutableHttpServletRequest
      */
-    public static MutableHttpServletRequest setRequestInputStreamWithDoc(Document doc, MutableHttpServletRequest request) {
+    public static MutableHttpServletRequest setRequestInputStreamWithDoc(Document doc,
+                                                                         MutableHttpServletRequest request) {
         Source xmlSource = new DOMSource(doc);
         try (
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

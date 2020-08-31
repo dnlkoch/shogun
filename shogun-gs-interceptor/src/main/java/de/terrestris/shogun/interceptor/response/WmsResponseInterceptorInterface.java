@@ -15,7 +15,8 @@ public interface WmsResponseInterceptorInterface {
 
     HttpResponse interceptDescribeLayer(MutableHttpServletRequest request, HttpResponse response);
 
-    HttpResponse interceptGetLegendGraphic(MutableHttpServletRequest request, HttpResponse response);
+    HttpResponse interceptGetLegendGraphic(MutableHttpServletRequest request,
+                                           HttpResponse response);
 
     HttpResponse interceptGetStyles(MutableHttpServletRequest request, HttpResponse response);
 

@@ -7,8 +7,10 @@ import de.terrestris.shogun.lib.model.BaseEntity;
 import de.terrestris.shogun.lib.repository.BaseCrudRepository;
 import de.terrestris.shogun.lib.service.security.permission.GroupInstancePermissionService;
 import de.terrestris.shogun.lib.service.security.permission.UserInstancePermissionService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
@@ -20,25 +22,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-
-public abstract class BaseService<T extends BaseCrudRepository<S, Long> & JpaSpecificationExecutor<S>, S extends BaseEntity> {
-
-    protected final Logger LOG = LogManager.getLogger(getClass());
+@Log4j2
+public abstract class BaseService<T extends BaseCrudRepository<S, Long> &
+    JpaSpecificationExecutor<S>, S extends BaseEntity> {
 
     @Autowired
     protected T repository;
-
-    @Autowired
-    ObjectMapper objectMapper;
 
     @Autowired
     protected UserInstancePermissionService userInstancePermissionService;
 
     @Autowired
     protected GroupInstancePermissionService groupInstancePermissionService;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @PostFilter("hasRole('ROLE_ADMIN') or hasPermission(filterObject, 'READ')")
     @Transactional(readOnly = true)
@@ -81,7 +79,8 @@ public abstract class BaseService<T extends BaseCrudRepository<S, Long> & JpaSpe
     public S create(S entity) {
         S persistedEntity = repository.save(entity);
 
-        userInstancePermissionService.setPermission(persistedEntity, PermissionCollectionType.ADMIN);
+        userInstancePermissionService
+            .setPermission(persistedEntity, PermissionCollectionType.ADMIN);
 
         return persistedEntity;
     }
@@ -92,7 +91,8 @@ public abstract class BaseService<T extends BaseCrudRepository<S, Long> & JpaSpe
         Optional<S> persistedEntity = repository.findById(id);
 
         JsonNode jsonObject = objectMapper.valueToTree(entity);
-        S updatedEntity = objectMapper.readerForUpdating(persistedEntity.get()).readValue(jsonObject);
+        S updatedEntity =
+            objectMapper.readerForUpdating(persistedEntity.get()).readValue(jsonObject);
 
         return repository.save(updatedEntity);
     }

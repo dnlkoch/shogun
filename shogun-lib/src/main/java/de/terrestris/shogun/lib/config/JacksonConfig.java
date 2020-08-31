@@ -18,7 +18,8 @@ public class JacksonConfig {
 
     @Bean
     public JtsModule jtsModule() {
-        GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(coordinatePrecisionScale), srid);
+        GeometryFactory geomFactory =
+            new GeometryFactory(new PrecisionModel(coordinatePrecisionScale), srid);
         return new JtsModule(geomFactory);
     }
 

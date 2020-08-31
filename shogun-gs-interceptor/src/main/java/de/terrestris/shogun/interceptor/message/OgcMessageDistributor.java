@@ -11,13 +11,12 @@ import de.terrestris.shogun.interceptor.response.WmsResponseInterceptorInterface
 import de.terrestris.shogun.interceptor.response.WpsResponseInterceptorInterface;
 import de.terrestris.shogun.interceptor.servlet.MutableHttpServletRequest;
 import de.terrestris.shogun.lib.dto.HttpResponse;
+import java.text.MessageFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import java.text.MessageFormat;
 
 @Component
 public class OgcMessageDistributor {
@@ -77,7 +76,9 @@ public class OgcMessageDistributor {
      * @return
      * @throws InterceptorException
      */
-    public HttpResponse distributeToResponseInterceptor(MutableHttpServletRequest mutableRequest, HttpResponse response, OgcMessage message) throws InterceptorException {
+    public HttpResponse distributeToResponseInterceptor(MutableHttpServletRequest mutableRequest,
+                                                        HttpResponse response, OgcMessage message)
+        throws InterceptorException {
         if (message.isResponseAllowed()) {
             logger.debug("Response is ALLOWED, not intercepting the response.");
             return response;
@@ -107,17 +108,21 @@ public class OgcMessageDistributor {
             logger.debug(infoMsg);
 
             if (message.isWmsGetCapabilities()) {
-                response = this.wmsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
+                response =
+                    this.wmsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
             } else if (message.isWmsGetMap()) {
                 response = this.wmsResponseInterceptor.interceptGetMap(mutableRequest, response);
             } else if (message.isWmsGetFeatureInfo()) {
-                response = this.wmsResponseInterceptor.interceptGetFeatureInfo(mutableRequest, response);
+                response =
+                    this.wmsResponseInterceptor.interceptGetFeatureInfo(mutableRequest, response);
             } else if (message.isWmsGetLegendGraphic()) {
-                response = this.wmsResponseInterceptor.interceptGetLegendGraphic(mutableRequest, response);
+                response =
+                    this.wmsResponseInterceptor.interceptGetLegendGraphic(mutableRequest, response);
             } else if (message.isWmsGetStyles()) {
                 response = this.wmsResponseInterceptor.interceptGetStyles(mutableRequest, response);
             } else if (message.isWmsDescribeLayer()) {
-                response = this.wmsResponseInterceptor.interceptDescribeLayer(mutableRequest, response);
+                response =
+                    this.wmsResponseInterceptor.interceptDescribeLayer(mutableRequest, response);
             } else {
                 throw new InterceptorException(operationErrMsg);
             }
@@ -134,15 +139,20 @@ public class OgcMessageDistributor {
 
             // Note: WFS 2.0.0 operations are not supported yet!
             if (message.isWfsGetCapabilities()) {
-                response = this.wfsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
+                response =
+                    this.wfsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
             } else if (message.isWfsGetFeature()) {
-                response = this.wfsResponseInterceptor.interceptGetFeature(mutableRequest, response);
+                response =
+                    this.wfsResponseInterceptor.interceptGetFeature(mutableRequest, response);
             } else if (message.isWfsDescribeFeatureType()) {
-                response = this.wfsResponseInterceptor.interceptDescribeFeatureType(mutableRequest, response);
+                response = this.wfsResponseInterceptor
+                    .interceptDescribeFeatureType(mutableRequest, response);
             } else if (message.isWfsTransaction()) {
-                response = this.wfsResponseInterceptor.interceptTransaction(mutableRequest, response);
+                response =
+                    this.wfsResponseInterceptor.interceptTransaction(mutableRequest, response);
             } else if (message.isWfsLockFeature()) {
-                response = this.wfsResponseInterceptor.interceptLockFeature(mutableRequest, response);
+                response =
+                    this.wfsResponseInterceptor.interceptLockFeature(mutableRequest, response);
             } else {
                 throw new InterceptorException(operationErrMsg);
             }
@@ -158,11 +168,14 @@ public class OgcMessageDistributor {
             logger.debug(infoMsg);
 
             if (message.isWcsGetCapabilities()) {
-                response = this.wcsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
+                response =
+                    this.wcsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
             } else if (message.isWcsDescribeCoverage()) {
-                response = this.wcsResponseInterceptor.interceptDescribeCoverage(mutableRequest, response);
+                response =
+                    this.wcsResponseInterceptor.interceptDescribeCoverage(mutableRequest, response);
             } else if (message.isWcsGetCoverage()) {
-                response = this.wcsResponseInterceptor.interceptGetCoverage(mutableRequest, response);
+                response =
+                    this.wcsResponseInterceptor.interceptGetCoverage(mutableRequest, response);
             } else {
                 throw new InterceptorException(operationErrMsg);
             }
@@ -178,9 +191,11 @@ public class OgcMessageDistributor {
             logger.debug(infoMsg);
 
             if (message.isWpsGetCapabilities()) {
-                response = this.wpsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
+                response =
+                    this.wpsResponseInterceptor.interceptGetCapabilities(mutableRequest, response);
             } else if (message.isWpsDescribeProcess()) {
-                response = this.wpsResponseInterceptor.interceptDescribeProcess(mutableRequest, response);
+                response =
+                    this.wpsResponseInterceptor.interceptDescribeProcess(mutableRequest, response);
             } else if (message.isWpsExecute()) {
                 response = this.wpsResponseInterceptor.interceptExecute(mutableRequest, response);
             } else {
@@ -205,7 +220,8 @@ public class OgcMessageDistributor {
      * @return
      * @throws InterceptorException
      */
-    public MutableHttpServletRequest distributeToRequestInterceptor(MutableHttpServletRequest request, OgcMessage message) throws InterceptorException {
+    public MutableHttpServletRequest distributeToRequestInterceptor(
+        MutableHttpServletRequest request, OgcMessage message) throws InterceptorException {
 
         if (message.isRequestAllowed()) {
             logger.debug("Request is ALLOWED, not intercepting the request.");

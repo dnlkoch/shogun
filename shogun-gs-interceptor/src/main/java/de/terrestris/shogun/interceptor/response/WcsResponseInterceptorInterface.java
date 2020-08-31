@@ -9,7 +9,8 @@ public interface WcsResponseInterceptorInterface {
 
     HttpResponse interceptGetCapabilities(MutableHttpServletRequest request, HttpResponse response);
 
-    HttpResponse interceptDescribeCoverage(MutableHttpServletRequest request, HttpResponse response);
+    HttpResponse interceptDescribeCoverage(MutableHttpServletRequest request,
+                                           HttpResponse response);
 
     HttpResponse interceptGetCoverage(MutableHttpServletRequest request, HttpResponse response);
 

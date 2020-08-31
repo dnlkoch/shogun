@@ -10,14 +10,16 @@ import de.terrestris.shogun.lib.repository.security.permission.GroupClassPermiss
 import de.terrestris.shogun.lib.repository.security.permission.PermissionCollectionRepository;
 import de.terrestris.shogun.lib.security.SecurityContextUtil;
 import de.terrestris.shogun.lib.service.BaseService;
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
-public class GroupClassPermissionService extends BaseService<GroupClassPermissionRepository, GroupClassPermission> {
+@Log4j2
+public class GroupClassPermissionService
+    extends BaseService<GroupClassPermissionRepository, GroupClassPermission> {
 
     @Autowired
     protected SecurityContextUtil securityContextUtil;
@@ -29,12 +31,12 @@ public class GroupClassPermissionService extends BaseService<GroupClassPermissio
      * Find group class permission for class of entity and given group
      *
      * @param entity The entity whose class should be checked
-     * @param group The group
+     * @param group  The group
      * @return An Optional containing the GroupClassPermission
      */
     public Optional<GroupClassPermission> findFor(BaseEntity entity, Group group) {
         String className = entity.getClass().getCanonicalName();
-        LOG.trace("Getting all group class permissions for group {} and entity class {}",
+        log.trace("Getting all group class permissions for group {} and entity class {}",
             group.getKeycloakId(), className);
         return repository.findByGroupIdAndClassName(group.getId(), className);
     }
@@ -48,7 +50,7 @@ public class GroupClassPermissionService extends BaseService<GroupClassPermissio
      */
     public Optional<GroupClassPermission> findFor(Class<? extends BaseEntity> clazz, Group group) {
         String className = clazz.getCanonicalName();
-        LOG.trace("Getting all group class permissions for group {} and entity class {}",
+        log.trace("Getting all group class permissions for group {} and entity class {}",
             group.getKeycloakId(), className);
         return repository.findByGroupIdAndClassName(group.getId(), className);
     }
@@ -58,19 +60,20 @@ public class GroupClassPermissionService extends BaseService<GroupClassPermissio
      * Iterates over all group the user is member of
      *
      * @param clazz The class that should be checked
-     * @param user The user to check for
+     * @param user  The user to check for
      * @return An Optional containing the GroupClassPermission
      */
     public Optional<GroupClassPermission> findFor(Class<? extends BaseEntity> clazz, User user) {
         String className = clazz.getCanonicalName();
-        LOG.trace("Getting all group class permissions for user {} and entity class {}",
+        log.trace("Getting all group class permissions for user {} and entity class {}",
             user.getKeycloakId(), className);
 
         // Get all groups of the user from Keycloak
         List<Group> groups = securityContextUtil.getGroupsForUser(user);
         Optional<GroupClassPermission> gcp = Optional.empty();
         for (Group g : groups) {
-            Optional<GroupClassPermission> permissionsForGroup = repository.findByGroupIdAndClassName(g.getId(), className);
+            Optional<GroupClassPermission> permissionsForGroup =
+                repository.findByGroupIdAndClassName(g.getId(), className);
             if (permissionsForGroup.isPresent()) {
                 gcp = permissionsForGroup;
                 break;
@@ -84,7 +87,7 @@ public class GroupClassPermissionService extends BaseService<GroupClassPermissio
      * Return permission collection for base entity and user based on class type and user groups
      *
      * @param entity The entity whose class should be checked
-     * @param user The user to get groups from
+     * @param user   The user to get groups from
      * @return A permission collection
      */
     public PermissionCollection findPermissionCollectionFor(BaseEntity entity, User user) {
@@ -100,12 +103,15 @@ public class GroupClassPermissionService extends BaseService<GroupClassPermissio
 
     /**
      * Set Permission for SHOGun group
-     * @param clazz The class to set permission for
-     * @param group The SHOGun group
+     *
+     * @param clazz                    The class to set permission for
+     * @param group                    The SHOGun group
      * @param permissionCollectionType The permission collection type (e.g. READ, READ_WRITE)
      */
-    public void setPermission(Class<? extends BaseEntity> clazz, Group group, PermissionCollectionType permissionCollectionType) {
-        Optional<PermissionCollection> permissionCollection = permissionCollectionRepository.findByName(permissionCollectionType);
+    public void setPermission(Class<? extends BaseEntity> clazz, Group group,
+                              PermissionCollectionType permissionCollectionType) {
+        Optional<PermissionCollection> permissionCollection =
+            permissionCollectionRepository.findByName(permissionCollectionType);
 
         if (permissionCollection.isEmpty()) {
             throw new RuntimeException("Could not find requested permission collection");
@@ -115,14 +121,14 @@ public class GroupClassPermissionService extends BaseService<GroupClassPermissio
 
         // Check if there is already an existing permission set on the entity
         if (existingPermissions.isPresent()) {
-            LOG.debug("Permission is already set for class {} and group {}: {}", clazz,
+            log.debug("Permission is already set for class {} and group {}: {}", clazz,
                 group, permissionCollection.get());
 
             // Remove the existing one
             // TODO: deletion really needed ???
             repository.delete(existingPermissions.get());
 
-            LOG.debug("Removed the permission");
+            log.debug("Removed the permission");
         }
 
         GroupClassPermission groupClassPermission = new GroupClassPermission();

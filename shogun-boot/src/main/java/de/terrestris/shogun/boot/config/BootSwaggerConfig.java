@@ -2,12 +2,11 @@ package de.terrestris.shogun.boot.config;
 
 import com.google.common.base.Predicate;
 import de.terrestris.shogun.config.SwaggerConfig;
+import java.util.Collections;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
-
-import java.util.Collections;
 
 @Configuration
 @EnableAutoConfiguration

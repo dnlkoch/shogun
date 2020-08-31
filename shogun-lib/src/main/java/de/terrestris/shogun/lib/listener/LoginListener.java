@@ -9,6 +9,8 @@ import de.terrestris.shogun.lib.repository.UserRepository;
 import de.terrestris.shogun.lib.security.SecurityContextUtil;
 import de.terrestris.shogun.lib.service.security.permission.UserInstancePermissionService;
 import de.terrestris.shogun.lib.util.KeycloakUtil;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -19,9 +21,6 @@ import org.springframework.security.authentication.event.InteractiveAuthenticati
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Component
 @Log4j2
@@ -56,7 +55,8 @@ public class LoginListener implements ApplicationListener<InteractiveAuthenticat
             return;
         }
 
-        String keycloakUserId = SecurityContextUtil.getKeycloakUserIdFromAuthentication(authentication);
+        String keycloakUserId =
+            SecurityContextUtil.getKeycloakUserIdFromAuthentication(authentication);
 
         // Add missing user to shogun db
         Optional<User> userOptional = userRepository.findByKeycloakId(keycloakUserId);

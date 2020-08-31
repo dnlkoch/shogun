@@ -1,24 +1,28 @@
 package de.terrestris.shogun.interceptor.servlet;
 
+import static org.apache.logging.log4j.LogManager.getLogger;
+
 import de.terrestris.shogun.interceptor.enumeration.OgcEnum;
 import de.terrestris.shogun.interceptor.exception.InterceptorException;
 import de.terrestris.shogun.interceptor.util.OgcXmlUtil;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static org.apache.logging.log4j.LogManager.getLogger;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
 
 /**
  * An implementation of HttpServletRequestWrapper.
@@ -72,7 +76,9 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
      * @throws InterceptorException
      * @throws IOException
      */
-    public static String getRequestParameterValue(HttpServletRequest httpServletRequest, String[] keys) throws InterceptorException, IOException {
+    public static String getRequestParameterValue(HttpServletRequest httpServletRequest,
+                                                  String[] keys)
+        throws InterceptorException, IOException {
         String value = StringUtils.EMPTY;
 
         for (String key : keys) {
@@ -85,44 +91,14 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         return value;
     }
 
-    @Override
-    public String getMethod() {
-        if (method != null) {
-            return method;
-        }
-        return super.getMethod();
-    }
-
-    /**
-     * Override the method. Can be used to convert a GET request to a POST request eg. when a GetMap-Request gets too
-     * large.
-     *
-     * @param method the new method (GET, POST)
-     */
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    /**
-     * Override what is returned by getQueryString.
-     *
-     * @param queryString the new query string
-     */
-    public void setQueryString(String queryString) {
-        this.queryString = queryString;
-    }
-
-    @Override
-    public String getQueryString() {
-        return queryString;
-    }
-
     /**
      * @param httpServletRequest
      * @param parameter
      * @return
      */
-    public static String getRequestParameterValue(HttpServletRequest httpServletRequest, String parameter) throws IOException, InterceptorException {
+    public static String getRequestParameterValue(HttpServletRequest httpServletRequest,
+                                                  String parameter)
+        throws IOException, InterceptorException {
         LOG.trace("Finding the request parameter [" + parameter + "]");
 
         String value = StringUtils.EMPTY;
@@ -152,9 +128,11 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
                         value = value.split(":")[1];
                     }
                 } else if (Arrays.asList(OgcEnum.EndPoint.getAllValues()).contains(parameter)) {
-                    value = OgcXmlUtil.getPathInDocument(document, "//TypeName/text() | //TypeNames/text() | //GetCoverage/Identifier/text()");
+                    value = OgcXmlUtil.getPathInDocument(document,
+                        "//TypeName/text() | //TypeNames/text() | //GetCoverage/Identifier/text()");
                     if (StringUtils.isEmpty(value)) {
-                        value = OgcXmlUtil.getPathInDocument(document, "//@typeName | //@typeNames");
+                        value =
+                            OgcXmlUtil.getPathInDocument(document, "//@typeName | //@typeNames");
                     }
                 }
             } else {
@@ -164,6 +142,38 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
         LOG.trace("Found the request parameter value: " + value);
         return value;
+    }
+
+    @Override
+    public String getMethod() {
+        if (method != null) {
+            return method;
+        }
+        return super.getMethod();
+    }
+
+    /**
+     * Override the method. Can be used to convert a GET request to a POST request eg. when a GetMap-Request gets too
+     * large.
+     *
+     * @param method the new method (GET, POST)
+     */
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    @Override
+    public String getQueryString() {
+        return queryString;
+    }
+
+    /**
+     * Override what is returned by getQueryString.
+     *
+     * @param queryString the new query string
+     */
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
     }
 
     /**

@@ -1,9 +1,8 @@
 package de.terrestris.shogun.lib.repository;
 
-import org.springframework.data.repository.NoRepositoryBean;
-
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.repository.NoRepositoryBean;
 
 @NoRepositoryBean
 public interface BaseFileRepository<T, ID> extends BaseCrudRepository<T, ID> {

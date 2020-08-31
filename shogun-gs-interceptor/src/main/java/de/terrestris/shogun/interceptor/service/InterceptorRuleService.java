@@ -6,18 +6,19 @@ import de.terrestris.shogun.interceptor.enumeration.OgcEnum;
 import de.terrestris.shogun.interceptor.model.InterceptorRule;
 import de.terrestris.shogun.interceptor.repository.InterceptorRuleRepository;
 import de.terrestris.shogun.lib.service.BaseService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class InterceptorRuleService extends BaseService<InterceptorRuleRepository, InterceptorRule> {
+public class InterceptorRuleService
+    extends BaseService<InterceptorRuleRepository, InterceptorRule> {
 
     @Transactional(readOnly = true)
-    public List<InterceptorRule> findAllRulesForServiceAndEvent(OgcEnum.ServiceType service, HttpEnum.EventType event) {
+    public List<InterceptorRule> findAllRulesForServiceAndEvent(OgcEnum.ServiceType service,
+                                                                HttpEnum.EventType event) {
         return repository.findAllByServiceAndEvent(service, event);
     }
 
@@ -40,10 +41,13 @@ public class InterceptorRuleService extends BaseService<InterceptorRuleRepositor
      * @param rule     The {@link InterceptorEnum.RuleType}
      * @param service  The {@link OgcEnum.ServiceType}
      */
-    public void addRequestRuleForServiceAndEndpoint(String endpoint, InterceptorEnum.RuleType rule, OgcEnum.ServiceType service) {
+    public void addRequestRuleForServiceAndEndpoint(String endpoint, InterceptorEnum.RuleType rule,
+                                                    OgcEnum.ServiceType service) {
         HttpEnum.EventType eventType = HttpEnum.EventType.REQUEST;
-        Set<OgcEnum.OperationType> allOperationsForService = OgcEnum.OPERATIONS_BY_SERVICETYPE.get(service);
-        allOperationsForService.forEach(operationType -> addRule(eventType, rule, service, operationType, endpoint));
+        Set<OgcEnum.OperationType> allOperationsForService =
+            OgcEnum.OPERATIONS_BY_SERVICETYPE.get(service);
+        allOperationsForService
+            .forEach(operationType -> addRule(eventType, rule, service, operationType, endpoint));
     }
 
     /**
@@ -53,10 +57,13 @@ public class InterceptorRuleService extends BaseService<InterceptorRuleRepositor
      * @param rule     The {@link InterceptorEnum.RuleType}
      * @param service  The {@link OgcEnum.ServiceType}
      */
-    public void addResponseRuleForServiceAndEndpoint(String endpoint, InterceptorEnum.RuleType rule, OgcEnum.ServiceType service) {
+    public void addResponseRuleForServiceAndEndpoint(String endpoint, InterceptorEnum.RuleType rule,
+                                                     OgcEnum.ServiceType service) {
         HttpEnum.EventType eventType = HttpEnum.EventType.RESPONSE;
-        Set<OgcEnum.OperationType> allOperationsForService = OgcEnum.OPERATIONS_BY_SERVICETYPE.get(service);
-        allOperationsForService.forEach(operationType -> addRule(eventType, rule, service, operationType, endpoint));
+        Set<OgcEnum.OperationType> allOperationsForService =
+            OgcEnum.OPERATIONS_BY_SERVICETYPE.get(service);
+        allOperationsForService
+            .forEach(operationType -> addRule(eventType, rule, service, operationType, endpoint));
     }
 
     /**
@@ -66,7 +73,8 @@ public class InterceptorRuleService extends BaseService<InterceptorRuleRepositor
      * @param rule     The {@link InterceptorEnum.RuleType}
      * @param service  The {@link OgcEnum.ServiceType}
      */
-    public void addRuleForEndpoint(String endpoint, InterceptorEnum.RuleType rule, OgcEnum.ServiceType service) {
+    public void addRuleForEndpoint(String endpoint, InterceptorEnum.RuleType rule,
+                                   OgcEnum.ServiceType service) {
         addRequestRuleForServiceAndEndpoint(endpoint, rule, service);
         addResponseRuleForServiceAndEndpoint(endpoint, rule, service);
     }
@@ -124,8 +132,12 @@ public class InterceptorRuleService extends BaseService<InterceptorRuleRepositor
      * @param operation The {@link OgcEnum.OperationType}, e.g. getMap
      * @param endPoint  The endpoint, e.g. the qualified layer name
      */
-    public void addRule(HttpEnum.EventType event, InterceptorEnum.RuleType rule, OgcEnum.ServiceType service, OgcEnum.OperationType operation, String endPoint) {
-        Optional<InterceptorRule> existingRule = repository.findByEventAndRuleAndServiceAndOperationAndEndPoint(event, rule, service, operation, endPoint);
+    public void addRule(HttpEnum.EventType event, InterceptorEnum.RuleType rule,
+                        OgcEnum.ServiceType service, OgcEnum.OperationType operation,
+                        String endPoint) {
+        Optional<InterceptorRule> existingRule = repository
+            .findByEventAndRuleAndServiceAndOperationAndEndPoint(event, rule, service, operation,
+                endPoint);
         InterceptorRule interceptorRule = existingRule.orElseGet(InterceptorRule::new);
 
         // set / update interceptor rule

@@ -1,9 +1,32 @@
 package de.terrestris.shogun.lib.util;
 
 import de.terrestris.shogun.lib.dto.HttpResponse;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -11,7 +34,12 @@ import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
@@ -32,16 +60,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.util.*;
 
 public class HttpUtil {
 
@@ -161,7 +179,8 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse get(String url, String username, String password) throws URISyntaxException, HttpException {
+    public static HttpResponse get(String url, String username, String password)
+        throws URISyntaxException, HttpException {
         return send(new HttpGet(url), new UsernamePasswordCredentials(username, password), null);
     }
 
@@ -175,9 +194,11 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse get(String url, String username, String password, Header[] requestHeaders)
+    public static HttpResponse get(String url, String username, String password,
+                                   Header[] requestHeaders)
         throws URISyntaxException, HttpException {
-        return send(new HttpGet(url), new UsernamePasswordCredentials(username, password), requestHeaders);
+        return send(new HttpGet(url), new UsernamePasswordCredentials(username, password),
+            requestHeaders);
     }
 
     /**
@@ -203,7 +224,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse get(URI uri, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    public static HttpResponse get(URI uri, Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
         return send(new HttpGet(uri), null, requestHeaders);
     }
 
@@ -235,9 +257,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse get(URI uri, String username, String password, Header[] requestHeaders)
+    public static HttpResponse get(URI uri, String username, String password,
+                                   Header[] requestHeaders)
         throws URISyntaxException, HttpException {
-        return send(new HttpGet(uri), new UsernamePasswordCredentials(username, password), requestHeaders);
+        return send(new HttpGet(uri), new UsernamePasswordCredentials(username, password),
+            requestHeaders);
     }
 
     /**
@@ -281,7 +305,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse forwardGet(URI uri, HttpServletRequest request, boolean forwardHeaders)
+    public static HttpResponse forwardGet(URI uri, HttpServletRequest request,
+                                          boolean forwardHeaders)
         throws URISyntaxException, HttpException {
 
         Header[] headersToForward = null;
@@ -336,7 +361,8 @@ public class HttpUtil {
      */
     public static HttpResponse post(String url, String password, String username)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(url), new ArrayList<NameValuePair>(), new UsernamePasswordCredentials(username, password), null);
+        return postParams(new HttpPost(url), new ArrayList<NameValuePair>(),
+            new UsernamePasswordCredentials(username, password), null);
     }
 
     /**
@@ -352,9 +378,11 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, String password, String username, Header[] requestHeaders)
+    public static HttpResponse post(String url, String password, String username,
+                                    Header[] requestHeaders)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(url), new ArrayList<NameValuePair>(), new UsernamePasswordCredentials(username, password), requestHeaders);
+        return postParams(new HttpPost(url), new ArrayList<NameValuePair>(),
+            new UsernamePasswordCredentials(username, password), requestHeaders);
     }
 
     /**
@@ -387,7 +415,8 @@ public class HttpUtil {
      */
     public static HttpResponse post(String url, Credentials credentials, Header[] requestHeaders)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(url), new ArrayList<NameValuePair>(), credentials, requestHeaders);
+        return postParams(new HttpPost(url), new ArrayList<NameValuePair>(), credentials,
+            requestHeaders);
     }
 
     /**
@@ -433,7 +462,8 @@ public class HttpUtil {
      */
     public static HttpResponse post(URI uri, String username, String password)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(uri), new ArrayList<NameValuePair>(), new UsernamePasswordCredentials(username, password), null);
+        return postParams(new HttpPost(uri), new ArrayList<NameValuePair>(),
+            new UsernamePasswordCredentials(username, password), null);
     }
 
     /**
@@ -449,9 +479,11 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, String username, String password, Header[] requestHeaders)
+    public static HttpResponse post(URI uri, String username, String password,
+                                    Header[] requestHeaders)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(uri), new ArrayList<NameValuePair>(), new UsernamePasswordCredentials(username, password), requestHeaders);
+        return postParams(new HttpPost(uri), new ArrayList<NameValuePair>(),
+            new UsernamePasswordCredentials(username, password), requestHeaders);
     }
 
     /**
@@ -484,7 +516,8 @@ public class HttpUtil {
      */
     public static HttpResponse post(URI uri, Credentials credentials, Header[] requestHeaders)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(uri), new ArrayList<NameValuePair>(), credentials, requestHeaders);
+        return postParams(new HttpPost(uri), new ArrayList<NameValuePair>(), credentials,
+            requestHeaders);
     }
 
     /**
@@ -513,7 +546,8 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, List<NameValuePair> queryParams, Header[] requestHeaders)
+    public static HttpResponse post(String url, List<NameValuePair> queryParams,
+                                    Header[] requestHeaders)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
         return postParams(new HttpPost(url), queryParams, null, requestHeaders);
     }
@@ -531,9 +565,11 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, List<NameValuePair> queryParams, String username, String password) throws URISyntaxException,
+    public static HttpResponse post(String url, List<NameValuePair> queryParams, String username,
+                                    String password) throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(url), queryParams, new UsernamePasswordCredentials(username, password), null);
+        return postParams(new HttpPost(url), queryParams,
+            new UsernamePasswordCredentials(username, password), null);
     }
 
     /**
@@ -550,9 +586,12 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, List<NameValuePair> queryParams, String username, String password, Header[] requestHeaders) throws URISyntaxException,
+    public static HttpResponse post(String url, List<NameValuePair> queryParams, String username,
+                                    String password, Header[] requestHeaders)
+        throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(url), queryParams, new UsernamePasswordCredentials(username, password), requestHeaders);
+        return postParams(new HttpPost(url), queryParams,
+            new UsernamePasswordCredentials(username, password), requestHeaders);
     }
 
     /**
@@ -566,7 +605,8 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, List<NameValuePair> queryParams, Credentials credentials) throws URISyntaxException,
+    public static HttpResponse post(String url, List<NameValuePair> queryParams,
+                                    Credentials credentials) throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
         return postParams(new HttpPost(url), queryParams, credentials, null);
     }
@@ -583,7 +623,9 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, List<NameValuePair> queryParams, Credentials credentials, Header[] requestHeaders) throws URISyntaxException,
+    public static HttpResponse post(String url, List<NameValuePair> queryParams,
+                                    Credentials credentials, Header[] requestHeaders)
+        throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
         return postParams(new HttpPost(url), queryParams, credentials, requestHeaders);
     }
@@ -614,7 +656,8 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, List<NameValuePair> queryParams, Header[] requestHeaders)
+    public static HttpResponse post(URI uri, List<NameValuePair> queryParams,
+                                    Header[] requestHeaders)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
         return postParams(new HttpPost(uri), queryParams, null, requestHeaders);
     }
@@ -632,9 +675,11 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, List<NameValuePair> queryParams, String username, String password) throws URISyntaxException,
+    public static HttpResponse post(URI uri, List<NameValuePair> queryParams, String username,
+                                    String password) throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(uri), queryParams, new UsernamePasswordCredentials(username, password), null);
+        return postParams(new HttpPost(uri), queryParams,
+            new UsernamePasswordCredentials(username, password), null);
     }
 
     /**
@@ -651,9 +696,12 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, List<NameValuePair> queryParams, String username, String password, Header[] requestHeaders) throws URISyntaxException,
+    public static HttpResponse post(URI uri, List<NameValuePair> queryParams, String username,
+                                    String password, Header[] requestHeaders)
+        throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
-        return postParams(new HttpPost(uri), queryParams, new UsernamePasswordCredentials(username, password), requestHeaders);
+        return postParams(new HttpPost(uri), queryParams,
+            new UsernamePasswordCredentials(username, password), requestHeaders);
     }
 
     /**
@@ -667,7 +715,8 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, List<NameValuePair> queryParams, Credentials credentials) throws URISyntaxException,
+    public static HttpResponse post(URI uri, List<NameValuePair> queryParams,
+                                    Credentials credentials) throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
         return postParams(new HttpPost(uri), queryParams, credentials, null);
     }
@@ -684,7 +733,9 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, List<NameValuePair> queryParams, Credentials credentials, Header[] requestHeaders) throws URISyntaxException,
+    public static HttpResponse post(URI uri, List<NameValuePair> queryParams,
+                                    Credentials credentials, Header[] requestHeaders)
+        throws URISyntaxException,
         UnsupportedEncodingException, HttpException {
         return postParams(new HttpPost(uri), queryParams, credentials, requestHeaders);
     }
@@ -717,7 +768,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(String url, String body,
-                                    ContentType contentType, Header[] requestHeaders, boolean chunked)
+                                    ContentType contentType, Header[] requestHeaders,
+                                    boolean chunked)
         throws URISyntaxException, HttpException {
         return postBody(new HttpPost(url), body, contentType, null, requestHeaders, chunked);
     }
@@ -736,7 +788,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(String url, String body,
-                                    ContentType contentType, String username, String password, boolean chunked) throws
+                                    ContentType contentType, String username, String password,
+                                    boolean chunked) throws
         URISyntaxException, HttpException {
         return postBody(new HttpPost(url), body, contentType,
             new UsernamePasswordCredentials(username, password), null, chunked);
@@ -757,7 +810,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(String url, String body,
-                                    ContentType contentType, String username, String password, Header[] requestHeaders, boolean chunked)
+                                    ContentType contentType, String username, String password,
+                                    Header[] requestHeaders, boolean chunked)
         throws URISyntaxException, HttpException {
         return postBody(new HttpPost(url), body, contentType,
             new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
@@ -775,7 +829,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(String url, String body,
-                                    ContentType contentType, Credentials credentials, boolean chunked) throws URISyntaxException,
+                                    ContentType contentType, Credentials credentials,
+                                    boolean chunked) throws URISyntaxException,
         HttpException {
         return postBody(new HttpPost(url), body, contentType, credentials, null, chunked);
     }
@@ -793,7 +848,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(String url, String body,
-                                    ContentType contentType, Credentials credentials, Header[] requestHeaders, boolean chunked)
+                                    ContentType contentType, Credentials credentials,
+                                    Header[] requestHeaders, boolean chunked)
         throws URISyntaxException, HttpException {
         return postBody(new HttpPost(url), body, contentType, credentials, requestHeaders, chunked);
     }
@@ -809,7 +865,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(URI uri, String body,
-                                    ContentType contentType, boolean chunked) throws URISyntaxException, HttpException {
+                                    ContentType contentType, boolean chunked)
+        throws URISyntaxException, HttpException {
         return postBody(new HttpPost(uri), body, contentType, null, null, chunked);
     }
 
@@ -825,7 +882,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(URI uri, String body,
-                                    ContentType contentType, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+                                    ContentType contentType, Header[] requestHeaders,
+                                    boolean chunked) throws URISyntaxException, HttpException {
         return postBody(new HttpPost(uri), body, contentType, null, requestHeaders, chunked);
     }
 
@@ -843,7 +901,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(URI uri, String body,
-                                    ContentType contentType, String username, String password, boolean chunked) throws URISyntaxException, HttpException {
+                                    ContentType contentType, String username, String password,
+                                    boolean chunked) throws URISyntaxException, HttpException {
         return postBody(new HttpPost(uri), body, contentType,
             new UsernamePasswordCredentials(username, password), null, chunked);
     }
@@ -863,7 +922,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(URI uri, String body,
-                                    ContentType contentType, String username, String password, Header[] requestHeaders, boolean chunked)
+                                    ContentType contentType, String username, String password,
+                                    Header[] requestHeaders, boolean chunked)
         throws URISyntaxException, HttpException {
         return postBody(new HttpPost(uri), body, contentType,
             new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
@@ -881,7 +941,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(URI uri, String body,
-                                    ContentType contentType, Credentials credentials, boolean chunked) throws URISyntaxException,
+                                    ContentType contentType, Credentials credentials,
+                                    boolean chunked) throws URISyntaxException,
         HttpException {
         return postBody(new HttpPost(uri), body, contentType, credentials, null, chunked);
     }
@@ -899,7 +960,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse post(URI uri, String body,
-                                    ContentType contentType, Credentials credentials, Header[] requestHeaders, boolean chunked)
+                                    ContentType contentType, Credentials credentials,
+                                    Header[] requestHeaders, boolean chunked)
         throws URISyntaxException, HttpException {
         return postBody(new HttpPost(uri), body, contentType, credentials, requestHeaders, chunked);
     }
@@ -913,7 +975,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, File file) throws URISyntaxException, HttpException {
+    public static HttpResponse post(String url, File file)
+        throws URISyntaxException, HttpException {
         return postMultiPart(new HttpPost(url), new FileBody(file), null, null);
     }
 
@@ -927,7 +990,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, File file, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    public static HttpResponse post(String url, File file, Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
         return postMultiPart(new HttpPost(url), new FileBody(file), null, requestHeaders);
     }
 
@@ -943,8 +1007,10 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, File file, String username, String password) throws URISyntaxException, HttpException {
-        return postMultiPart(new HttpPost(url), new FileBody(file), new UsernamePasswordCredentials(username, password), null);
+    public static HttpResponse post(String url, File file, String username, String password)
+        throws URISyntaxException, HttpException {
+        return postMultiPart(new HttpPost(url), new FileBody(file),
+            new UsernamePasswordCredentials(username, password), null);
     }
 
     /**
@@ -960,8 +1026,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, File file, String username, String password, Header[] requestHeaders) throws URISyntaxException, HttpException {
-        return postMultiPart(new HttpPost(url), new FileBody(file), new UsernamePasswordCredentials(username, password), requestHeaders);
+    public static HttpResponse post(String url, File file, String username, String password,
+                                    Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
+        return postMultiPart(new HttpPost(url), new FileBody(file),
+            new UsernamePasswordCredentials(username, password), requestHeaders);
     }
 
     /**
@@ -975,7 +1044,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, File file, Credentials credentials) throws URISyntaxException, HttpException {
+    public static HttpResponse post(String url, File file, Credentials credentials)
+        throws URISyntaxException, HttpException {
         return postMultiPart(new HttpPost(url), new FileBody(file), credentials, null);
     }
 
@@ -991,7 +1061,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(String url, File file, Credentials credentials, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    public static HttpResponse post(String url, File file, Credentials credentials,
+                                    Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
         return postMultiPart(new HttpPost(url), new FileBody(file), credentials, requestHeaders);
     }
 
@@ -1018,7 +1090,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, File file, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    public static HttpResponse post(URI uri, File file, Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
         return postMultiPart(new HttpPost(uri), new FileBody(file), null, requestHeaders);
     }
 
@@ -1034,8 +1107,10 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, File file, String username, String password) throws URISyntaxException, HttpException {
-        return postMultiPart(new HttpPost(uri), new FileBody(file), new UsernamePasswordCredentials(username, password), null);
+    public static HttpResponse post(URI uri, File file, String username, String password)
+        throws URISyntaxException, HttpException {
+        return postMultiPart(new HttpPost(uri), new FileBody(file),
+            new UsernamePasswordCredentials(username, password), null);
     }
 
     /**
@@ -1051,8 +1126,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, File file, String username, String password, Header[] requestHeaders) throws URISyntaxException, HttpException {
-        return postMultiPart(new HttpPost(uri), new FileBody(file), new UsernamePasswordCredentials(username, password), requestHeaders);
+    public static HttpResponse post(URI uri, File file, String username, String password,
+                                    Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
+        return postMultiPart(new HttpPost(uri), new FileBody(file),
+            new UsernamePasswordCredentials(username, password), requestHeaders);
     }
 
     /**
@@ -1066,7 +1144,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, File file, Credentials credentials) throws URISyntaxException, HttpException {
+    public static HttpResponse post(URI uri, File file, Credentials credentials)
+        throws URISyntaxException, HttpException {
         return postMultiPart(new HttpPost(uri), new FileBody(file), credentials, null);
     }
 
@@ -1082,7 +1161,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse post(URI uri, File file, Credentials credentials, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    public static HttpResponse post(URI uri, File file, Credentials credentials,
+                                    Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
         return postMultiPart(new HttpPost(uri), new FileBody(file), credentials, requestHeaders);
     }
 
@@ -1099,8 +1180,10 @@ public class HttpUtil {
      * @throws IOException
      * @throws ServletException
      */
-    public static HttpResponse forwardFormMultipartPost(URI uri, HttpServletRequest request, boolean forwardHeaders)
-        throws URISyntaxException, HttpException, IllegalStateException, IOException, ServletException {
+    public static HttpResponse forwardFormMultipartPost(URI uri, HttpServletRequest request,
+                                                        boolean forwardHeaders)
+        throws URISyntaxException, HttpException, IllegalStateException, IOException,
+        ServletException {
         Header[] headersToForward = null;
 
         if (request != null && forwardHeaders) {
@@ -1109,7 +1192,8 @@ public class HttpUtil {
 
         // remove content headers as http client lib will care about this
         // when entity is set on the httpPost instance in the postMultiPart method
-        headersToForward = removeHeaders(headersToForward, new String[]{"content-length", "content-type"});
+        headersToForward =
+            removeHeaders(headersToForward, new String[] {"content-length", "content-type"});
 
         Collection<Part> parts = request.getParts();
 
@@ -1125,7 +1209,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    private static HttpResponse postMultiPart(URI uri, Collection<Part> parts, Header[] headersToForward) throws IOException, URISyntaxException, HttpException {
+    private static HttpResponse postMultiPart(URI uri, Collection<Part> parts,
+                                              Header[] headersToForward)
+        throws IOException, URISyntaxException, HttpException {
 
         HttpPost httpPost = new HttpPost(uri);
 
@@ -1148,7 +1234,8 @@ public class HttpUtil {
             // add the part
             builder.addPart(name, byteArrayBody);
 
-            LOG.debug("Add a form/multipart part with name '" + name + "', content type '" + contentType.getMimeType() + "' and size "
+            LOG.debug("Add a form/multipart part with name '" + name + "', content type '" +
+                contentType.getMimeType() + "' and size "
                 + part.getSize());
         }
 
@@ -1168,7 +1255,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    private static HttpResponse postMultiPart(HttpPost httpRequest, FileBody file, Credentials credentials, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    private static HttpResponse postMultiPart(HttpPost httpRequest, FileBody file,
+                                              Credentials credentials, Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
 
         HttpEntity multiPartEntity = MultipartEntityBuilder.create()
             .addPart("file", file)
@@ -1189,7 +1278,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     private static HttpResponse postBody(HttpPost httpRequest, String body,
-                                         ContentType contentType, Credentials credentials, Header[] requestHeaders, boolean chunked)
+                                         ContentType contentType, Credentials credentials,
+                                         Header[] requestHeaders, boolean chunked)
         throws URISyntaxException, HttpException {
 
         StringEntity stringEntity = new StringEntity(body, contentType);
@@ -1209,7 +1299,8 @@ public class HttpUtil {
      * @throws UnsupportedEncodingException
      * @throws HttpException
      */
-    private static HttpResponse postParams(HttpPost httpRequest, List<NameValuePair> queryParams, Credentials credentials, Header[] requestHeaders)
+    private static HttpResponse postParams(HttpPost httpRequest, List<NameValuePair> queryParams,
+                                           Credentials credentials, Header[] requestHeaders)
         throws URISyntaxException, UnsupportedEncodingException, HttpException {
 
         if (!queryParams.isEmpty()) {
@@ -1231,7 +1322,9 @@ public class HttpUtil {
      * @throws HttpException
      */
     public static HttpResponse forwardPost(URI uri,
-                                           HttpServletRequest request, boolean forwardHeaders, boolean chunked) throws URISyntaxException, HttpException {
+                                           HttpServletRequest request, boolean forwardHeaders,
+                                           boolean chunked)
+        throws URISyntaxException, HttpException {
         Header[] headersToForward = null;
         if (request != null && forwardHeaders) {
             headersToForward = HttpUtil.getHeadersFromRequest(request);
@@ -1268,7 +1361,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      */
     public static HttpResponse put(URI uri,
-                                   Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+                                   Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uri), null, null, null, requestHeaders, chunked);
     }
 
@@ -1280,7 +1374,8 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse put(String uriString, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(String uriString, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uriString), null, null, null, null, chunked);
     }
 
@@ -1293,7 +1388,8 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse put(String uriString, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(String uriString, Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uriString), null, null, null, requestHeaders, chunked);
     }
 
@@ -1308,8 +1404,10 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String username, String password, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uri), null, null, new UsernamePasswordCredentials(username, password), null, chunked);
+    public static HttpResponse put(URI uri, String username, String password, boolean chunked)
+        throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uri), null, null,
+            new UsernamePasswordCredentials(username, password), null, chunked);
     }
 
     /**
@@ -1324,8 +1422,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String username, String password, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uri), null, null, new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
+    public static HttpResponse put(URI uri, String username, String password,
+                                   Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uri), null, null,
+            new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
     }
 
     /**
@@ -1337,7 +1438,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, Credentials credentials, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(URI uri, Credentials credentials, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uri), null, null, credentials, null, chunked);
     }
 
@@ -1351,7 +1453,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, Credentials credentials, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(URI uri, Credentials credentials, Header[] requestHeaders,
+                                   boolean chunked) throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uri), null, null, credentials, requestHeaders, chunked);
     }
 
@@ -1365,8 +1468,10 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse put(String uriString, String username, String password, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uriString), null, null, new UsernamePasswordCredentials(username, password), null, chunked);
+    public static HttpResponse put(String uriString, String username, String password,
+                                   boolean chunked) throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uriString), null, null,
+            new UsernamePasswordCredentials(username, password), null, chunked);
     }
 
     /**
@@ -1380,8 +1485,11 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse put(String uriString, String username, String password, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uriString), null, null, new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
+    public static HttpResponse put(String uriString, String username, String password,
+                                   Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uriString), null, null,
+            new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
     }
 
     /**
@@ -1393,7 +1501,8 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse put(String uriString, Credentials credentials, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(String uriString, Credentials credentials, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uriString), null, null, credentials, null, chunked);
     }
 
@@ -1407,7 +1516,9 @@ public class HttpUtil {
      * @throws HttpException
      * @throws URISyntaxException
      */
-    public static HttpResponse put(String uriString, Credentials credentials, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(String uriString, Credentials credentials,
+                                   Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uriString), null, null, credentials, requestHeaders, chunked);
     }
 
@@ -1422,7 +1533,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(String uriString, String body, ContentType contentType, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(String uriString, String body, ContentType contentType,
+                                   boolean chunked) throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uriString), body, contentType, null, null, chunked);
     }
 
@@ -1438,7 +1550,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(String uriString, String body, ContentType contentType, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(String uriString, String body, ContentType contentType,
+                                   Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uriString), body, contentType, null, requestHeaders, chunked);
     }
 
@@ -1454,8 +1568,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(String uriString, String body, ContentType contentType, String username, String password, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uriString), body, contentType, new UsernamePasswordCredentials(username, password), null, chunked);
+    public static HttpResponse put(String uriString, String body, ContentType contentType,
+                                   String username, String password, boolean chunked)
+        throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uriString), body, contentType,
+            new UsernamePasswordCredentials(username, password), null, chunked);
     }
 
     /**
@@ -1471,8 +1588,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(String uriString, String body, ContentType contentType, String username, String password, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uriString), body, contentType, new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
+    public static HttpResponse put(String uriString, String body, ContentType contentType,
+                                   String username, String password, Header[] requestHeaders,
+                                   boolean chunked) throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uriString), body, contentType,
+            new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
     }
 
     /**
@@ -1486,7 +1606,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(String uriString, String body, ContentType contentType, Credentials credentials, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(String uriString, String body, ContentType contentType,
+                                   Credentials credentials, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uriString), body, contentType, credentials, null, chunked);
     }
 
@@ -1502,8 +1624,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(String uriString, String body, ContentType contentType, Credentials credentials, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uriString), body, contentType, credentials, requestHeaders, chunked);
+    public static HttpResponse put(String uriString, String body, ContentType contentType,
+                                   Credentials credentials, Header[] requestHeaders,
+                                   boolean chunked) throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uriString), body, contentType, credentials, requestHeaders,
+            chunked);
     }
 
     /**
@@ -1517,7 +1642,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String body, ContentType contentType, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(URI uri, String body, ContentType contentType, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uri), body, contentType, null, null, chunked);
     }
 
@@ -1533,7 +1659,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String body, ContentType contentType, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(URI uri, String body, ContentType contentType,
+                                   Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uri), body, contentType, null, requestHeaders, chunked);
     }
 
@@ -1549,8 +1677,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String body, ContentType contentType, String username, String password, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uri), body, contentType, new UsernamePasswordCredentials(username, password), null, chunked);
+    public static HttpResponse put(URI uri, String body, ContentType contentType, String username,
+                                   String password, boolean chunked)
+        throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uri), body, contentType,
+            new UsernamePasswordCredentials(username, password), null, chunked);
     }
 
     /**
@@ -1566,8 +1697,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String body, ContentType contentType, String username, String password, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
-        return putBody(new HttpPut(uri), body, contentType, new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
+    public static HttpResponse put(URI uri, String body, ContentType contentType, String username,
+                                   String password, Header[] requestHeaders, boolean chunked)
+        throws URISyntaxException, HttpException {
+        return putBody(new HttpPut(uri), body, contentType,
+            new UsernamePasswordCredentials(username, password), requestHeaders, chunked);
     }
 
     /**
@@ -1581,7 +1715,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String body, ContentType contentType, Credentials credentials, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(URI uri, String body, ContentType contentType,
+                                   Credentials credentials, boolean chunked)
+        throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uri), body, contentType, credentials, null, chunked);
     }
 
@@ -1597,7 +1733,9 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse put(URI uri, String body, ContentType contentType, Credentials credentials, Header[] requestHeaders, boolean chunked) throws URISyntaxException, HttpException {
+    public static HttpResponse put(URI uri, String body, ContentType contentType,
+                                   Credentials credentials, Header[] requestHeaders,
+                                   boolean chunked) throws URISyntaxException, HttpException {
         return putBody(new HttpPut(uri), body, contentType, credentials, requestHeaders, chunked);
     }
 
@@ -1622,7 +1760,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse delete(String url, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    public static HttpResponse delete(String url, Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
         return send(new HttpDelete(url), null, requestHeaders);
     }
 
@@ -1652,9 +1791,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse delete(String url, String username, String password, Header[] requestHeaders)
+    public static HttpResponse delete(String url, String username, String password,
+                                      Header[] requestHeaders)
         throws URISyntaxException, HttpException {
-        return send(new HttpDelete(url), new UsernamePasswordCredentials(username, password), requestHeaders);
+        return send(new HttpDelete(url), new UsernamePasswordCredentials(username, password),
+            requestHeaders);
     }
 
     /**
@@ -1707,7 +1848,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse delete(URI uri, Header[] requestHeaders) throws URISyntaxException, HttpException {
+    public static HttpResponse delete(URI uri, Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
         return send(new HttpDelete(uri), null, requestHeaders);
     }
 
@@ -1722,7 +1864,8 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse delete(URI uri, String username, String password) throws URISyntaxException, HttpException {
+    public static HttpResponse delete(URI uri, String username, String password)
+        throws URISyntaxException, HttpException {
         return send(new HttpDelete(uri), new UsernamePasswordCredentials(username, password), null);
     }
 
@@ -1738,8 +1881,11 @@ public class HttpUtil {
      * @throws URISyntaxException
      * @throws HttpException
      */
-    public static HttpResponse delete(URI uri, String username, String password, Header[] requestHeaders) throws URISyntaxException, HttpException {
-        return send(new HttpDelete(uri), new UsernamePasswordCredentials(username, password), requestHeaders);
+    public static HttpResponse delete(URI uri, String username, String password,
+                                      Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
+        return send(new HttpDelete(uri), new UsernamePasswordCredentials(username, password),
+            requestHeaders);
     }
 
     /**
@@ -1784,7 +1930,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     private static HttpResponse putBody(HttpPut httpRequest,
-                                        String body, ContentType contentType, Credentials credentials, Header[] requestHeaders,
+                                        String body, ContentType contentType,
+                                        Credentials credentials, Header[] requestHeaders,
                                         boolean chunked) throws URISyntaxException, HttpException {
 
         if (contentType != null && !StringUtils.isEmpty(body)) {
@@ -1808,7 +1955,8 @@ public class HttpUtil {
      * @throws HttpException
      */
     private static HttpResponse send(HttpRequestBase httpRequest, Credentials credentials,
-                                     Header[] requestHeaders) throws URISyntaxException, HttpException {
+                                     Header[] requestHeaders)
+        throws URISyntaxException, HttpException {
 
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
@@ -1842,17 +1990,23 @@ public class HttpUtil {
                 if (StringUtils.equalsIgnoreCase(uriScheme, "http")) {
                     LOG.debug("Using http proxy");
 
-                    if (!StringUtils.isEmpty(httpProxyUser) && !StringUtils.isEmpty(httpProxyPassword)) {
-                        LOG.debug("Using proxy user and password for the http proxy " + proxyHostName);
-                        proxyCredentials = new UsernamePasswordCredentials(httpProxyUser, httpProxyPassword);
+                    if (!StringUtils.isEmpty(httpProxyUser) &&
+                        !StringUtils.isEmpty(httpProxyPassword)) {
+                        LOG.debug(
+                            "Using proxy user and password for the http proxy " + proxyHostName);
+                        proxyCredentials =
+                            new UsernamePasswordCredentials(httpProxyUser, httpProxyPassword);
                     }
 
                 } else if (StringUtils.equalsIgnoreCase(uriScheme, "https")) {
                     LOG.debug("Using https proxy");
 
-                    if (!StringUtils.isEmpty(httpsProxyUser) && !StringUtils.isEmpty(httpsProxyPassword)) {
-                        LOG.debug("Using proxy user and password for the https proxy " + proxyHostName);
-                        proxyCredentials = new UsernamePasswordCredentials(httpsProxyUser, httpsProxyPassword);
+                    if (!StringUtils.isEmpty(httpsProxyUser) &&
+                        !StringUtils.isEmpty(httpsProxyPassword)) {
+                        LOG.debug(
+                            "Using proxy user and password for the https proxy " + proxyHostName);
+                        proxyCredentials =
+                            new UsernamePasswordCredentials(httpsProxyUser, httpsProxyPassword);
                     }
                 }
             }
@@ -2047,7 +2201,8 @@ public class HttpUtil {
                 }
 
                 if (headerValue.isEmpty()) {
-                    LOG.debug("Skipping request header '" + headerName + "' as it's value is empty (possibly an "
+                    LOG.debug("Skipping request header '" + headerName +
+                        "' as it's value is empty (possibly an "
                         + "unsupported cookie value has been removed)");
                 } else {
                     LOG.debug("Adding request header: " + headerName + "=" + headerValue);
@@ -2078,8 +2233,9 @@ public class HttpUtil {
                 headers.add(header);
             }
         }
-        LOG.debug("Removed the content-length and content-type headers as the HTTP Client lib will care "
-            + "about them as soon as the entity is set on the POST object.");
+        LOG.debug(
+            "Removed the content-length and content-type headers as the HTTP Client lib will care "
+                + "about them as soon as the entity is set on the POST object.");
         Header[] headersArray = new Header[headers.size()];
         headersArray = headers.toArray(headersArray);
         return headersArray;

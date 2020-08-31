@@ -10,14 +10,14 @@ import de.terrestris.shogun.lib.repository.security.permission.GroupInstancePerm
 import de.terrestris.shogun.lib.repository.security.permission.PermissionCollectionRepository;
 import de.terrestris.shogun.lib.security.SecurityContextUtil;
 import de.terrestris.shogun.lib.service.BaseService;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
-public class GroupInstancePermissionService extends BaseService<GroupInstancePermissionRepository, GroupInstancePermission> {
+public class GroupInstancePermissionService
+    extends BaseService<GroupInstancePermissionRepository, GroupInstancePermission> {
 
     @Autowired
     protected SecurityContextUtil securityContextUtil;
@@ -27,8 +27,9 @@ public class GroupInstancePermissionService extends BaseService<GroupInstancePer
 
     /**
      * Get permission for SHOGun group
+     *
      * @param entity entity to get group permissions for
-     * @param group The SHOGun group
+     * @param group  The SHOGun group
      * @return
      */
     public Optional<GroupInstancePermission> findFor(BaseEntity entity, Group group) {
@@ -42,7 +43,8 @@ public class GroupInstancePermissionService extends BaseService<GroupInstancePer
             return Optional.empty();
         }
 
-        LOG.trace("Getting all group permissions for group {} and entity {}", group.getKeycloakId(), entity);
+        LOG.trace("Getting all group permissions for group {} and entity {}", group.getKeycloakId(),
+            entity);
 
         return repository.findByGroupIdAndEntityId(group.getId(), entity.getId()); // TODO: !
     }
@@ -62,17 +64,20 @@ public class GroupInstancePermissionService extends BaseService<GroupInstancePer
 
     /**
      * Get groups of user from Keycloak and return resulting permissions
+     *
      * @param entity entity to get group permissions for
-     * @param user The SHOGun user
+     * @param user   The SHOGun user
      * @return
      */
     public Optional<GroupInstancePermission> findFor(BaseEntity entity, User user) {
-        LOG.trace("Getting all group permissions for user {} and entity {}", user.getKeycloakId(), entity);
+        LOG.trace("Getting all group permissions for user {} and entity {}", user.getKeycloakId(),
+            entity);
         // Get all groups of the user from Keycloak
         List<Group> groups = securityContextUtil.getGroupsForUser(user);
         Optional<GroupInstancePermission> gip = Optional.empty();
         for (Group g : groups) {
-            Optional<GroupInstancePermission> permissionsForGroup = repository.findByGroupIdAndEntityId(g.getId(), entity.getId());
+            Optional<GroupInstancePermission> permissionsForGroup =
+                repository.findByGroupIdAndEntityId(g.getId(), entity.getId());
             if (permissionsForGroup.isPresent()) {
                 gip = permissionsForGroup;
                 break;
@@ -84,8 +89,9 @@ public class GroupInstancePermissionService extends BaseService<GroupInstancePer
 
     /**
      * Return permission collection for base entity and group
+     *
      * @param entity The entity to fetch permission collection for
-     * @param user The user
+     * @param user   The user
      * @return The first permission collection of the user that can be found for this entity
      */
     public PermissionCollection findPermissionCollectionFor(BaseEntity entity, User user) {
@@ -100,12 +106,15 @@ public class GroupInstancePermissionService extends BaseService<GroupInstancePer
 
     /**
      * Set Permission for SHOGun group
-     * @param persistedEntity The entity to set permission for
-     * @param group The SHOGun group
+     *
+     * @param persistedEntity          The entity to set permission for
+     * @param group                    The SHOGun group
      * @param permissionCollectionType The permission collection type (e.g. READ, READ_WRITE)
      */
-    public void setPermission(BaseEntity persistedEntity, Group group, PermissionCollectionType permissionCollectionType) {
-        Optional<PermissionCollection> permissionCollection = permissionCollectionRepository.findByName(permissionCollectionType);
+    public void setPermission(BaseEntity persistedEntity, Group group,
+                              PermissionCollectionType permissionCollectionType) {
+        Optional<PermissionCollection> permissionCollection =
+            permissionCollectionRepository.findByName(permissionCollectionType);
 
         if (permissionCollection.isEmpty()) {
             throw new RuntimeException("Could not find requested permission collection");
@@ -138,7 +147,8 @@ public class GroupInstancePermissionService extends BaseService<GroupInstancePer
 
         repository.deleteAll(groupInstancePermissions);
 
-        LOG.info("Successfully deleted all group instance permissions for entity with id {}", persistedEntity.getId());
+        LOG.info("Successfully deleted all group instance permissions for entity with id {}",
+            persistedEntity.getId());
         LOG.trace("Deleted entity: {}", persistedEntity);
     }
 }

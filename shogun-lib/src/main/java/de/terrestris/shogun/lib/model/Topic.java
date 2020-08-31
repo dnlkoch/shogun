@@ -4,7 +4,19 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import de.terrestris.shogun.lib.resolver.ImageFileIdResolver;
-import lombok.*;
+import java.util.Map;
+import java.util.Set;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Type;
@@ -12,13 +24,8 @@ import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
-import javax.persistence.*;
-import java.awt.*;
-import java.util.Map;
-import java.util.Set;
-
 /**
- Entity representing a topic configuration, in particular:
+ * Entity representing a topic configuration, in particular:
  * name, description, ...
  * layer tree
  * list of search layer configurations

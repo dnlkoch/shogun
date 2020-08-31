@@ -6,21 +6,20 @@ import de.terrestris.shogun.lib.model.User;
 import de.terrestris.shogun.lib.security.SecurityContextUtil;
 import de.terrestris.shogun.lib.security.access.entity.BaseEntityPermissionEvaluator;
 import de.terrestris.shogun.lib.security.access.entity.DefaultPermissionEvaluator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-
 @Component
+@Log4j2
 public class BasePermissionEvaluator implements PermissionEvaluator {
 
-    protected final Logger LOG = LogManager.getLogger(getClass());
+    private static final String ANONYMOUS_USERNAME = "ANONYMOUS";
 
     @Autowired
     protected List<BaseEntityPermissionEvaluator<?>> permissionEvaluators;
@@ -31,16 +30,16 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
     @Autowired
     protected SecurityContextUtil securityContextUtil;
 
-    private static final String ANONYMOUS_USERNAME = "ANONYMOUS";
-
     @Override
-    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permissionObject) {
-        LOG.trace("About to evaluate permission for user '{}' targetDomainObject '{}' " +
-                "and permissionObject '{}'", authentication, targetDomainObject, permissionObject);
+    public boolean hasPermission(Authentication authentication, Object targetDomainObject,
+                                 Object permissionObject) {
+        log.trace("About to evaluate permission for user '{}' targetDomainObject '{}' " +
+            "and permissionObject '{}'", authentication, targetDomainObject, permissionObject);
 
-        if ((authentication == null) || (targetDomainObject == null) || !(permissionObject instanceof String) ||
-                (targetDomainObject instanceof Optional && ((Optional) targetDomainObject).isEmpty())) {
-            LOG.trace("Restricting access since not all input requirements are met.");
+        if ((authentication == null) || (targetDomainObject == null) ||
+            !(permissionObject instanceof String) ||
+            (targetDomainObject instanceof Optional && ((Optional) targetDomainObject).isEmpty())) {
+            log.trace("Restricting access since not all input requirements are met.");
             return false;
         }
 
@@ -60,25 +59,28 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
         final String persistentObjectSimpleName = targetDomainObject.getClass().getSimpleName();
         final PermissionType permission = PermissionType.valueOf((String) permissionObject);
 
-        LOG.trace("Evaluating whether user '{}' has permission '{}' on entity '{}' with ID {}",
-                accountName, permission, targetDomainObject.getClass().getSimpleName(), persistentObjectId);
+        log.trace("Evaluating whether user '{}' has permission '{}' on entity '{}' with ID {}",
+            accountName, permission, targetDomainObject.getClass().getSimpleName(),
+            persistentObjectId);
 
         BaseEntityPermissionEvaluator entityPermissionEvaluator =
-                this.getPermissionEvaluatorForClass(persistentObject);
+            this.getPermissionEvaluatorForClass(persistentObject);
 
         if (entityPermissionEvaluator != null) {
             return entityPermissionEvaluator.hasPermission(user, persistentObject, permission);
         }
 
-        LOG.warn("No permission evaluator for class {} could be found. Permission will " +
-                "be restricted", persistentObjectSimpleName);
+        log.warn("No permission evaluator for class {} could be found. Permission will " +
+            "be restricted", persistentObjectSimpleName);
 
         return false;
     }
 
     @Override
-    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
-        LOG.trace("HUHUHUHUHUHUHUUHUH");
+    public boolean hasPermission(Authentication authentication, Serializable targetId,
+                                 String targetType, Object permission) {
+        // TODO
+        log.trace("HUHUHUHUHUHUHUUHUH");
         return false;
     }
 
@@ -112,13 +114,14 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
      * @param persistentObject
      * @return
      */
-    private BaseEntityPermissionEvaluator getPermissionEvaluatorForClass(BaseEntity persistentObject) {
+    private BaseEntityPermissionEvaluator getPermissionEvaluatorForClass(
+        BaseEntity persistentObject) {
 
         BaseEntityPermissionEvaluator entityPermissionEvaluator = permissionEvaluators.stream()
-                .filter(permissionEvaluator -> persistentObject.getClass().equals(
-                        permissionEvaluator.getEntityClassName()))
-                .findAny()
-                .orElse(defaultPermissionEvaluator);
+            .filter(permissionEvaluator -> persistentObject.getClass().equals(
+                permissionEvaluator.getEntityClassName()))
+            .findAny()
+            .orElse(defaultPermissionEvaluator);
 
         return entityPermissionEvaluator;
     }

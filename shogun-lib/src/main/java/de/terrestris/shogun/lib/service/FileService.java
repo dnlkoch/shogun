@@ -4,13 +4,12 @@ import de.terrestris.shogun.lib.model.File;
 import de.terrestris.shogun.lib.repository.FileRepository;
 import de.terrestris.shogun.lib.util.FileUtil;
 import de.terrestris.shogun.properties.UploadProperties;
+import java.util.List;
 import org.apache.tomcat.util.http.fileupload.impl.InvalidContentTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Service
 public class FileService extends BaseFileService<FileRepository, File> {
@@ -47,13 +46,16 @@ public class FileService extends BaseFileService<FileRepository, File> {
         }
 
         if (uploadProperties.getFile().getSupportedContentTypes() == null) {
-            throw new InvalidContentTypeException("No list of supported content types for the file upload found. " +
-                "Please check your application.yml");
+            throw new InvalidContentTypeException(
+                "No list of supported content types for the file upload found. " +
+                    "Please check your application.yml");
         }
 
         List<String> supportedContentTypes = uploadProperties.getFile().getSupportedContentTypes();
 
-        boolean isMatch = PatternMatchUtils.simpleMatch(supportedContentTypes.toArray(new String[supportedContentTypes.size()]), contentType);
+        boolean isMatch = PatternMatchUtils
+            .simpleMatch(supportedContentTypes.toArray(new String[supportedContentTypes.size()]),
+                contentType);
 
         if (!isMatch) {
             throw new InvalidContentTypeException("Unsupported content type for upload!");

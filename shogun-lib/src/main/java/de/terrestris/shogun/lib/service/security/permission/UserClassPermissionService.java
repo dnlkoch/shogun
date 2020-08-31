@@ -9,13 +9,13 @@ import de.terrestris.shogun.lib.repository.security.permission.PermissionCollect
 import de.terrestris.shogun.lib.repository.security.permission.UserClassPermissionRepository;
 import de.terrestris.shogun.lib.security.SecurityContextUtil;
 import de.terrestris.shogun.lib.service.BaseService;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
-public class UserClassPermissionService extends BaseService<UserClassPermissionRepository, UserClassPermission> {
+public class UserClassPermissionService
+    extends BaseService<UserClassPermissionRepository, UserClassPermission> {
 
     @Autowired
     protected SecurityContextUtil securityContextUtil;
@@ -25,8 +25,9 @@ public class UserClassPermissionService extends BaseService<UserClassPermissionR
 
     /**
      * Return {@link Optional} containing {@link UserClassPermission}
+     *
      * @param clazz The class that should be checked
-     * @param user The user to check for
+     * @param user  The user to check for
      * @return {@link Optional} containing {@link UserClassPermission}
      */
     public Optional<UserClassPermission> findFor(Class<? extends BaseEntity> clazz, User user) {
@@ -39,8 +40,9 @@ public class UserClassPermissionService extends BaseService<UserClassPermissionR
 
     /**
      * Return {@link Optional} containing {@link UserClassPermission}
+     *
      * @param entity The entity whose class should be checked
-     * @param user The user to check for
+     * @param user   The user to check for
      * @return {@link Optional} containing {@link UserClassPermission}
      */
     public PermissionCollection findPermissionCollectionFor(BaseEntity entity, User user) {
@@ -56,10 +58,12 @@ public class UserClassPermissionService extends BaseService<UserClassPermissionR
 
     /**
      * Return {@link Optional} containing {@link UserClassPermission}
-     * @param clazz The class that should be checked
+     *
+     * @param clazz                    The class that should be checked
      * @param permissionCollectionType The permissionCollectionType to set
      */
-    public void setPermission(Class<? extends BaseEntity> clazz, PermissionCollectionType permissionCollectionType) {
+    public void setPermission(Class<? extends BaseEntity> clazz,
+                              PermissionCollectionType permissionCollectionType) {
         Optional<User> activeUser = securityContextUtil.getUserBySession();
 
         if (activeUser.isEmpty()) {
@@ -71,12 +75,15 @@ public class UserClassPermissionService extends BaseService<UserClassPermissionR
 
     /**
      * Return {@link Optional} containing {@link UserClassPermission}
-     * @param clazz The class that should be set
-     * @param user The user to set permissions for
+     *
+     * @param clazz                    The class that should be set
+     * @param user                     The user to set permissions for
      * @param permissionCollectionType The permissionCollectionType to set
      */
-    public void setPermission(Class<? extends BaseEntity> clazz, User user, PermissionCollectionType permissionCollectionType) {
-        Optional<PermissionCollection> permissionCollection = permissionCollectionRepository.findByName(permissionCollectionType);
+    public void setPermission(Class<? extends BaseEntity> clazz, User user,
+                              PermissionCollectionType permissionCollectionType) {
+        Optional<PermissionCollection> permissionCollection =
+            permissionCollectionRepository.findByName(permissionCollectionType);
 
         if (permissionCollection.isEmpty()) {
             throw new RuntimeException("Could not find requested permission collection");
@@ -86,7 +93,8 @@ public class UserClassPermissionService extends BaseService<UserClassPermissionR
 
         // Check if there is already an existing permission set on the entity
         if (existingPermissions.isPresent()) {
-            LOG.debug("Permission is already set for clazz {} and user {}: {}", clazz.getCanonicalName(),
+            LOG.debug("Permission is already set for clazz {} and user {}: {}",
+                clazz.getCanonicalName(),
                 user, permissionCollection.get());
 
             // Remove the existing one

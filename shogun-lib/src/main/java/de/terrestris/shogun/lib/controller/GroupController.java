@@ -4,15 +4,18 @@ import de.terrestris.shogun.lib.model.Group;
 import de.terrestris.shogun.lib.model.User;
 import de.terrestris.shogun.lib.service.GroupService;
 import de.terrestris.shogun.lib.service.UserService;
+import java.util.List;
+import java.util.Optional;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/groups")
@@ -30,7 +33,7 @@ public class GroupController extends BaseController<GroupService, Group> {
             if (user.isPresent()) {
                 return service.findByUser(user.get());
             } else {
-                throw new Exception("Could not find user with ID " +  userId);
+                throw new Exception("Could not find user with ID " + userId);
             }
         } catch (Exception e) {
             LOG.error("Error while finding groups for user with ID {}: \n {}",

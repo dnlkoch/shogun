@@ -4,9 +4,15 @@ import de.terrestris.shogun.interceptor.enumeration.HttpEnum;
 import de.terrestris.shogun.interceptor.enumeration.InterceptorEnum;
 import de.terrestris.shogun.interceptor.enumeration.OgcEnum;
 import de.terrestris.shogun.lib.model.BaseEntity;
-import lombok.*;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data

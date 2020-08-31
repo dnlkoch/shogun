@@ -22,7 +22,8 @@ public abstract class WebSecurityConfig extends KeycloakWebSecurityConfigurerAda
 
         grantedAuthorityMapper.setConvertToUpperCase(true);
 
-        KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
+        KeycloakAuthenticationProvider keycloakAuthenticationProvider =
+            keycloakAuthenticationProvider();
         keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(grantedAuthorityMapper);
         auth.authenticationProvider(keycloakAuthenticationProvider);
     }

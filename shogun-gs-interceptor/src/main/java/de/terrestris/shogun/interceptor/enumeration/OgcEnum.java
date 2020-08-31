@@ -2,8 +2,11 @@ package de.terrestris.shogun.interceptor.enumeration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class OgcEnum {
 
@@ -91,7 +94,9 @@ public class OgcEnum {
         Set<ServiceType> wmtsSet = Set.of(ServiceType.WMTS);
 
         // A set containing the WMS, WFS, WCS and WPS ServiceTypes
-        Set<ServiceType> getCapSet = Set.of(ServiceType.WMS, ServiceType.WFS, ServiceType.WCS, ServiceType.WPS, ServiceType.WMTS);
+        Set<ServiceType> getCapSet =
+            Set.of(ServiceType.WMS, ServiceType.WFS, ServiceType.WCS, ServiceType.WPS,
+                ServiceType.WMTS);
 
         // look up all WMS operations from the previously created map
         Set<OperationType> wmsOperations = OPERATIONS_BY_SERVICETYPE.get(ServiceType.WMS);

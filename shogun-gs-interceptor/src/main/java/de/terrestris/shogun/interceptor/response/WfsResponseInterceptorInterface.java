@@ -9,7 +9,8 @@ public interface WfsResponseInterceptorInterface {
 
     HttpResponse interceptGetCapabilities(MutableHttpServletRequest request, HttpResponse response);
 
-    HttpResponse interceptDescribeFeatureType(MutableHttpServletRequest request, HttpResponse response);
+    HttpResponse interceptDescribeFeatureType(MutableHttpServletRequest request,
+                                              HttpResponse response);
 
     HttpResponse interceptGetFeature(MutableHttpServletRequest request, HttpResponse response);
 

@@ -7,16 +7,16 @@ import com.sun.jdi.InvalidTypeException;
 import de.terrestris.shogun.lib.model.BaseEntity;
 import de.terrestris.shogun.lib.service.BaseService;
 import de.terrestris.shogun.lib.util.ApplicationContextProvider;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 import javassist.NotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Optional;
-
 @Log4j2
-public abstract class BaseEntityIdResolver<E extends BaseEntity, S extends BaseService> extends SimpleObjectIdResolver {
+public abstract class BaseEntityIdResolver<E extends BaseEntity, S extends BaseService>
+    extends SimpleObjectIdResolver {
 
     @Autowired
     protected S service;
@@ -51,7 +51,8 @@ public abstract class BaseEntityIdResolver<E extends BaseEntity, S extends BaseS
             applicationContext.getAutowireCapableBeanFactory().autowireBean(instance);
 
             return instance;
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+            InvocationTargetException e) {
             log.error("Error instantiating a BaseEntityIdResolver: " + e.getMessage());
             log.trace("Full stack trace: ", e);
         }

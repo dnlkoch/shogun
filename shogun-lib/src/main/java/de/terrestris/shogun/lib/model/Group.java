@@ -1,14 +1,17 @@
 package de.terrestris.shogun.lib.model;
 
-import lombok.*;
-import org.hibernate.envers.AuditTable;
-import org.hibernate.envers.Audited;
-import org.keycloak.representations.idm.GroupRepresentation;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.keycloak.representations.idm.GroupRepresentation;
 
 @Entity(name = "groups")
 @Table(schema = "shogun")

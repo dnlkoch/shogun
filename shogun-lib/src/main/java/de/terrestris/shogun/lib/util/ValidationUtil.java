@@ -1,13 +1,16 @@
 package de.terrestris.shogun.lib.util;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.*;
 
 public class ValidationUtil {
 
@@ -21,12 +24,14 @@ public class ValidationUtil {
      * @throws ResponseStatusException If there are validation errors a ResponseStatusException is thrown. These are handled
      *                                 by the Spring ResponseStatusExceptionResolver which allows the validation errors to be included in the HTTP response.
      */
-    public static ResponseEntity<Map<String, Object>> validateBindingResult(BindingResult bindingResult) {
+    public static ResponseEntity<Map<String, Object>> validateBindingResult(
+        BindingResult bindingResult) {
         Map<String, Object> response = new HashMap<>();
         response.put("error", String.format("Invalid %s", bindingResult.getObjectName()));
         List<String> errors = new ArrayList<>();
 
-        StringBuilder message = new StringBuilder(String.format("Invalid %s input. Errors:", bindingResult.getObjectName()));
+        StringBuilder message = new StringBuilder(
+            String.format("Invalid %s input. Errors:", bindingResult.getObjectName()));
         for (ObjectError err : bindingResult.getAllErrors()) {
             message.append(String.format(" %s", err.getDefaultMessage()));
             errors.add(err.getDefaultMessage());
@@ -35,7 +40,8 @@ public class ValidationUtil {
         response.put("status", 422);
         response.put("timestamp", new Date().toString());
 
-        LOG.error("Found validation errors in bindingResult for entity {}: {}", bindingResult.getObjectName(),
+        LOG.error("Found validation errors in bindingResult for entity {}: {}",
+            bindingResult.getObjectName(),
             message.toString());
 
         return ResponseEntity.unprocessableEntity().body(response);

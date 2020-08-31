@@ -6,25 +6,26 @@ import graphql.GraphQL;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.idl.*;
+import graphql.schema.idl.RuntimeWiring;
+import graphql.schema.idl.SchemaGenerator;
+import graphql.schema.idl.SchemaParser;
+import graphql.schema.idl.TypeDefinitionRegistry;
+import graphql.schema.idl.TypeRuntimeWiring;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.Charsets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
+@Log4j2
 public class GraphQLProvider {
-
-    protected final Logger LOG = LogManager.getLogger(getClass());
 
     protected GraphQL graphQL;
 
@@ -35,7 +36,7 @@ public class GraphQLProvider {
 
     @Bean
     @ConditionalOnProperty(
-        value="shogun.graphql.skipBean",
+        value = "shogun.graphql.skipBean",
         havingValue = "false",
         matchIfMissing = true
     )
@@ -45,7 +46,7 @@ public class GraphQLProvider {
 
     @Bean
     @ConditionalOnProperty(
-        value="shogun.graphql.skipBean",
+        value = "shogun.graphql.skipBean",
         havingValue = "false",
         matchIfMissing = true
     )
@@ -55,7 +56,7 @@ public class GraphQLProvider {
 
     @PostConstruct
     public void init() throws IOException {
-        LOG.info("Initializing Graph QL");
+        log.info("Initializing Graph QL");
         this.buildSchema();
         this.graphQL = GraphQL.newGraphQL(graphQLSchema).build();
     }
