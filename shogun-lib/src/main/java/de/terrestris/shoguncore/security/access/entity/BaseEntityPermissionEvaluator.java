@@ -46,8 +46,11 @@ public abstract class BaseEntityPermissionEvaluator<E extends BaseEntity> implem
 
         final String simpleClassName = entity.getClass().getSimpleName();
 
+        LOG.trace("Evaluating whether user '{}' has permission '{}' on entity '{}' with ID {}",
+            user.getEmail(), permission, simpleClassName, entity.getId());
+
         // CHECK USER INSTANCE PERMISSIONS
-        PermissionCollection userPermissionCol = null;
+        PermissionCollection userPermissionCol;
         if (permission.equals(PermissionType.CREATE) && entity.getId() == null) {
             userPermissionCol = new PermissionCollection();
         } else {
@@ -63,7 +66,7 @@ public abstract class BaseEntityPermissionEvaluator<E extends BaseEntity> implem
         }
 
         // CHECK GROUP INSTANCE PERMISSIONS
-        PermissionCollection groupPermissionsCol = null;
+        PermissionCollection groupPermissionsCol;
         if (permission.equals(PermissionType.CREATE) && entity.getId() == null) {
             groupPermissionsCol = new PermissionCollection();
         } else {
@@ -96,7 +99,7 @@ public abstract class BaseEntityPermissionEvaluator<E extends BaseEntity> implem
         // Grant access if group explicitly has the requested permission or
         // if the group has the ADMIN permission
         if (groupClassPermissions.contains(permission) || groupClassPermissions.contains(PermissionType.ADMIN)) {
-            LOG.trace("Granting " + permission + " access by group instance permissions");
+            LOG.trace("Granting " + permission + " access by group class permissions");
             return true;
         }
 

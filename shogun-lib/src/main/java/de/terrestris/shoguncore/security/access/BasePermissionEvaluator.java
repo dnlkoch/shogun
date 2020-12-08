@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +33,6 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
     @Autowired
     private DefaultPermissionEvaluator defaultPermissionEvaluator;
 
-    private static final String ANONYMOUS_USERNAME = "ANONYMOUS";
-
     @Override
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permissionObject) {
         LOG.trace("About to evaluate permission for user '{}' targetDomainObject '{}' " +
@@ -47,7 +46,11 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
 
         User user = this.getUserFromAuthentication(authentication);
 
-        String accountName = user != null ? user.getUsername() : ANONYMOUS_USERNAME;
+        if (user == null) {
+            LOG.trace("Restricting access since no user is available.");
+
+            return false;
+        }
 
         final BaseEntity persistentObject;
         if (targetDomainObject instanceof Optional) {
@@ -56,24 +59,18 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
             persistentObject = (BaseEntity) targetDomainObject;
         }
 
-        final Long persistentObjectId = persistentObject.getId();
-        final String persistentObjectSimpleName = targetDomainObject.getClass().getSimpleName();
         final PermissionType permission = PermissionType.valueOf((String) permissionObject);
 
-        LOG.trace("Evaluating whether user '{}' has permission '{}' on entity '{}' with ID {}",
-                accountName, permission, targetDomainObject.getClass().getSimpleName(), persistentObjectId);
+        LOG.trace("Getting the appropriate permission evaluator implementation for class '{}'",
+            targetDomainObject.getClass().getSimpleName());
 
         BaseEntityPermissionEvaluator entityPermissionEvaluator =
                 this.getPermissionEvaluatorForClass(persistentObject);
 
-        if (entityPermissionEvaluator != null) {
-            return entityPermissionEvaluator.hasPermission(user, persistentObject, permission);
-        }
+        LOG.trace("Checking permissions with permission evaluator '{}'",
+            entityPermissionEvaluator.getClass().getSimpleName());
 
-        LOG.warn("No permission evaluator for class {} could be found. Permission will " +
-                "be restricted", persistentObjectSimpleName);
-
-        return false;
+        return entityPermissionEvaluator.hasPermission(user, persistentObject, permission);
     }
 
     @Override
@@ -82,30 +79,6 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
         return false;
     }
 
-//    public boolean hasClassPermission(Authentication authentication, BaseEntity targetDomainObject, Object permissionObject) {
-//        LOG.trace("About to evaluate permission for authentication '{}' targetDomainObject '{}' " +
-//                "and permissionObject '{}'", authentication, targetDomainObject, permissionObject);
-//
-//        if ((authentication == null) || (targetDomainObject == null) || !(permissionObject instanceof String)) {
-//            LOG.trace("Restricting access since not all input requirements are met.");
-//            return false;
-//        }
-//
-//        User user = this.getUserFromAuthentication(authentication);
-//
-//        String accountName = user != null ? user.getUsername() : ANONYMOUS_USERNAME;
-//
-//        final PermissionType permission = PermissionType.valueOf((String) permissionObject);
-//
-//        LOG.trace("Evaluating whether user '{}' has permission '{}' on class '{}", accountName,
-//                permission, targetDomainObject.getClass().getSimpleName());
-//
-//        BaseEntityPermissionEvaluator entityPermissionEvaluator =
-//                this.getPermissionEvaluatorForClass(targetDomainObject);
-//
-//        return entityPermissionEvaluator.hasPermission(user, targetDomainObject.getClass(), permission);
-//    }
-
     /**
      * Returns the {@BaseEntityPermissionEvaluator} for the given {@BaseEntity}.
      *
@@ -113,9 +86,6 @@ public class BasePermissionEvaluator implements PermissionEvaluator {
      * @return
      */
     private BaseEntityPermissionEvaluator getPermissionEvaluatorForClass(BaseEntity persistentObject) {
-
-//        String persistentObjectSimpleName = persistentObject.getClass().getSimpleName();
-
         BaseEntityPermissionEvaluator entityPermissionEvaluator = permissionEvaluators.stream()
                 .filter(permissionEvaluator -> persistentObject.getClass().equals(
                         permissionEvaluator.getEntityClassName()))
