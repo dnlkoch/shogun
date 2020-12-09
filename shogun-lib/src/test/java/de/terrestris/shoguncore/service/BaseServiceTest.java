@@ -2,23 +2,20 @@ package de.terrestris.shoguncore.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.terrestris.shoguncore.model.BaseEntity;
-import de.terrestris.shoguncore.model.security.permission.PermissionCollection;
 import de.terrestris.shoguncore.repository.BaseCrudRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BaseServiceTest {

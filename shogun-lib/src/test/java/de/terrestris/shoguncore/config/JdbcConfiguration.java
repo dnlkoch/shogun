@@ -12,6 +12,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.testcontainers.containers.JdbcDatabaseContainer;
@@ -25,7 +26,7 @@ import java.util.Set;
 
 @Configuration(proxyBeanMethods = false)
 @EnableJpaRepositories(basePackages = "de.terrestris.shoguncore.repository")
-@PropertySource("jdbc.properties")
+@TestPropertySource("jdbc.properties")
 @EnableTransactionManagement
 public class JdbcConfiguration {
 
@@ -62,14 +63,15 @@ public class JdbcConfiguration {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
 
         result.setDataSource(dataSource(postgreSQLContainer()));
-        result.setPackagesToScan(env.getProperty("shogun.model.packages"));
+//        result.setPackagesToScan(env.getProperty("shogun.model.packages"));
+        result.setPackagesToScan("de.terrestris.shoguncore.model");
         result.setJpaVendorAdapter(jpaVendorAdapter());
 
         Map<String, Object> jpaProperties = new HashMap<>();
-        jpaProperties.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
-        jpaProperties.put("hibernate.dialect", env.getProperty("hibernate.dialect"));
-        jpaProperties.put("hibernate.show_sql", env.getProperty("hibernate.show_sql"));
-        jpaProperties.put("hibernate.format_sql", env.getProperty("hibernate.format_sql"));
+        jpaProperties.put("hibernate.hbm2ddl.auto", "update");
+        jpaProperties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        jpaProperties.put("hibernate.show_sql", "false");
+        jpaProperties.put("hibernate.format_sql", "false");
 
         result.setJpaPropertyMap(jpaProperties);
 

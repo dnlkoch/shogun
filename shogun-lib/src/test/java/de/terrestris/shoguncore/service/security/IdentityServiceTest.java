@@ -25,6 +25,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.in;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {
     JacksonConfig.class,
@@ -64,6 +65,9 @@ public class IdentityServiceTest {
     private Identity identityA;
     private Identity identityB;
     private Identity identityC;
+
+    public IdentityServiceTest() {
+    }
 
     @Before
     public void init() {
