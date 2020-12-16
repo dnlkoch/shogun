@@ -29,6 +29,7 @@ public abstract class BaseService<T extends BaseCrudRepository<S, Long> & JpaSpe
     ObjectMapper objectMapper;
 
     @PostFilter("hasRole('ROLE_ADMIN') or hasPermission(filterObject, 'READ')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#entity, 'CREATE')")
     @Transactional(readOnly = true)
     public List<S> findAll() {
         return (List<S>) repository.findAll();
