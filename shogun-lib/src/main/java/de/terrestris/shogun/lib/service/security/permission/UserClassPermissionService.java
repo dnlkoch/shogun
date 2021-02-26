@@ -10,9 +10,11 @@ import de.terrestris.shogun.lib.repository.security.permission.UserClassPermissi
 import de.terrestris.shogun.lib.security.SecurityContextUtil;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 public class UserClassPermissionService extends BasePermissionService<UserClassPermissionRepository, UserClassPermission> {
 
@@ -30,7 +32,7 @@ public class UserClassPermissionService extends BasePermissionService<UserClassP
      */
     public List<UserClassPermission> findFor(User user) {
 
-        LOG.trace("Getting all user class permissions for user with Keycloak ID {}",
+        log.trace("Getting all user class permissions for user with Keycloak ID {}",
             user.getKeycloakId());
 
         return repository.findAllByUser(user);
@@ -45,7 +47,7 @@ public class UserClassPermissionService extends BasePermissionService<UserClassP
     public List<UserClassPermission> findFor(BaseEntity entity) {
         String className = entity.getClass().getCanonicalName();
 
-        LOG.trace("Getting all user class permissions for entity class {}", className);
+        log.trace("Getting all user class permissions for entity class {}", className);
 
         return repository.findByClassName(className);
     }
@@ -59,7 +61,7 @@ public class UserClassPermissionService extends BasePermissionService<UserClassP
     public Optional<UserClassPermission> findFor(Class<? extends BaseEntity> clazz, User user) {
         String className = clazz.getCanonicalName();
 
-        LOG.trace("Getting all user class permissions for user with Keycloak ID {} and " +
+        log.trace("Getting all user class permissions for user with Keycloak ID {} and " +
             "entity class {}", user.getKeycloakId(), className);
 
         return repository.findByUserIdAndClassName(user.getId(), className);
@@ -74,7 +76,7 @@ public class UserClassPermissionService extends BasePermissionService<UserClassP
      * @return The (optional) permission.
      */
     public Optional<UserClassPermission> findFor(BaseEntity entity, User user) {
-        LOG.trace("Getting all user class permissions for user with Keycloak ID {} and " +
+        log.trace("Getting all user class permissions for user with Keycloak ID {} and " +
             "entity class {}", user.getKeycloakId(), entity.getClass().getCanonicalName());
 
         return repository.findByUserIdAndClassName(user.getId(), entity.getClass().getCanonicalName());
@@ -149,13 +151,13 @@ public class UserClassPermissionService extends BasePermissionService<UserClassP
 
         // Check if there is already an existing permission set on the entity
         if (existingPermission.isPresent()) {
-            LOG.debug("Permission is already set for clazz {} and user with " +
+            log.debug("Permission is already set for clazz {} and user with " +
                 "Keycloak ID {}: {}", clazz.getCanonicalName(), user, permissionCollection);
 
             // Remove the existing one
             repository.delete(existingPermission.get());
 
-            LOG.debug("Removed the permission");
+            log.debug("Removed the permission");
         }
     }
 
@@ -180,7 +182,7 @@ public class UserClassPermissionService extends BasePermissionService<UserClassP
 
         repository.deleteAll(userClassPermissions);
 
-        LOG.info("Successfully deleted all user class permissions for entity with ID {}",
+        log.info("Successfully deleted all user class permissions for entity with ID {}",
             persistedEntity.getId());
     }
 
@@ -190,10 +192,10 @@ public class UserClassPermissionService extends BasePermissionService<UserClassP
         if (userClassPermission.isPresent()) {
             repository.delete(userClassPermission.get());
 
-            LOG.info("Successfully deleted the user class permission for entity with ID {} and user {}.",
+            log.info("Successfully deleted the user class permission for entity with ID {} and user {}.",
                 persistedEntity.getId(), user.getId());
         } else {
-            LOG.warn("Could not delete the user class permission. The requested permission does not exist.");
+            log.warn("Could not delete the user class permission. The requested permission does not exist.");
         }
     }
 }
